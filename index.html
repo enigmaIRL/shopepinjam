@@ -1,189 +1,168 @@
-import React, { useState, useEffect } from "react";
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Shopee Pinjam</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .animate-fadeIn { animation: fadeIn 0.4s ease-in-out; }
+    @keyframes fadeIn { from { opacity:0; transform:translateY(5px);} to {opacity:1; transform:translateY(0);} }
+  </style>
+</head>
+<body class="min-h-screen bg-white text-gray-900">
+  <!-- Header -->
+  <header class="flex justify-between items-center p-4 bg-orange-500 text-white shadow-md">
+    <h1 class="text-xl font-bold">Shopee Pinjam</h1>
+    <span class="font-medium">Hi, Lindawati</span>
+  </header>
 
-export default function ShopeePinjamApp() {
-  const [active, setActive] = useState("pinjaman");
-  const [expanded, setExpanded] = useState(null);
-  const [riwayat, setRiwayat] = useState([]);
-  const [pinjaman, setPinjaman] = useState([
-    { id: 1, jumlah: 500000, tenor: 2, jatuhTempo: 7, cicilan: 259499 },
-    { id: 2, jumlah: 600000, tenor: 3, jatuhTempo: 8, cicilan: 230500 },
-    { id: 3, jumlah: 3500000, tenor: 10, jatuhTempo: 8, cicilan: 438667 },
-    { id: 4, jumlah: 1000000, tenor: 1, jatuhTempo: 20, cicilan: 254100 },
-  ]);
+  <!-- Tombol utama -->
+  <div class="flex justify-center gap-3 mt-6 px-2">
+    <button onclick="setActive('pinjam')" class="px-6 py-2 rounded-xl text-white font-semibold bg-gradient-to-r from-orange-400 to-orange-500 shadow-lg hover:scale-105 transition">Pinjam</button>
+    <button onclick="setActive('bayar')" class="px-6 py-2 rounded-xl bg-red-500 hover:bg-red-600 text-white font-semibold shadow-lg">Bayar</button>
+    <button onclick="setActive('pinjaman')" class="px-6 py-2 rounded-xl bg-orange-400 hover:bg-orange-500 text-white font-semibold shadow-lg transform transition-all hover:scale-105">Pinjaman</button>
+    <button onclick="setActive('riwayat')" class="px-6 py-2 rounded-xl bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold shadow-lg">Riwayat</button>
+  </div>
 
-  useEffect(() => {
-    setRiwayat([
+  <!-- Konten -->
+  <main id="content" class="max-w-3xl mx-auto mt-6 p-4 sm:px-4 md:px-6"></main>
+
+  <script>
+    let active = "pinjaman";
+    let expanded = null;
+    let riwayat = [
       { jenis: "Pembayaran cicilan", jumlah: 150000, tanggal: "02 Sep 2025" },
       { jenis: "Pelunasan sebagian", jumlah: 200000, tanggal: "25 Agu 2025" },
       { jenis: "Pembayaran cicilan", jumlah: 259499, tanggal: "07 Agu 2025" },
       { jenis: "Pembayaran cicilan", jumlah: 259499, tanggal: "07 Jul 2025" },
       { jenis: "Pembayaran cicilan", jumlah: 259499, tanggal: "07 Jun 2025" },
       { jenis: "Pembayaran cicilan", jumlah: 259499, tanggal: "07 Mei 2025" },
-    ]);
-  }, []);
+    ];
+    let pinjaman = [
+      { id: 1, jumlah: 500000, tenor: 2, jatuhTempo: 7, cicilan: 259499 },
+      { id: 2, jumlah: 600000, tenor: 3, jatuhTempo: 8, cicilan: 230500 },
+      { id: 3, jumlah: 3500000, tenor: 10, jatuhTempo: 8, cicilan: 438667 },
+      { id: 4, jumlah: 1000000, tenor: 1, jatuhTempo: 20, cicilan: 254100 },
+    ];
 
-  const today = new Date().getDate();
+    function setActive(view) {
+      active = view;
+      render();
+    }
 
-  function bayar(id) {
-    const idx = pinjaman.findIndex((p) => p.id === id);
-    if (idx === -1) return;
-    const p = pinjaman[idx];
+    function bayar(id) {
+      const idx = pinjaman.findIndex(p => p.id === id);
+      if (idx === -1) return;
+      const p = pinjaman[idx];
 
-    setRiwayat((prev) => [
-      {
+      riwayat.unshift({
         jenis: `Pembayaran cicilan pinjaman Rp ${p.jumlah.toLocaleString()}`,
         jumlah: p.cicilan,
         tanggal: new Date().toLocaleDateString("id-ID"),
-      },
-      ...prev,
-    ]);
+      });
 
-    const newPinjaman = [...pinjaman];
-    newPinjaman[idx].tenor -= 1;
-    if (newPinjaman[idx].tenor <= 0) newPinjaman.splice(idx, 1);
-    setPinjaman(newPinjaman);
-    setActive("riwayat");
-  }
+      pinjaman[idx].tenor -= 1;
+      if (pinjaman[idx].tenor <= 0) pinjaman.splice(idx, 1);
+      active = "riwayat";
+      render();
+    }
 
-  function simulasiPinjam(tenor) {
-    const pokok = 100000;
-    const bunga = pokok * 0.05 * tenor;
-    const total = pokok + bunga;
-    const cicilan = Math.round(total / tenor);
-    return { pokok, tenor, bunga, total, cicilan };
-  }
+    function simulasiPinjam(tenor) {
+      const pokok = 100000;
+      const bunga = pokok * 0.05 * tenor;
+      const total = pokok + bunga;
+      const cicilan = Math.round(total / tenor);
+      return { pokok, tenor, bunga, total, cicilan };
+    }
 
-  return (
-    <div className="min-h-screen bg-white text-gray-900">
-      {/* Header */}
-      <header className="flex justify-between items-center p-4 bg-orange-500 text-white shadow-md">
-        <h1 className="text-xl font-bold">Shopee Pinjam</h1>
-        <span className="font-medium">Hi, Lindawati</span>
-      </header>
+    function render() {
+      const today = new Date().getDate();
+      const content = document.getElementById("content");
+      content.innerHTML = "";
 
-      {/* Tombol utama */}
-      <div className="flex justify-center gap-3 mt-6 px-2">
-        <button
-          onClick={() => setActive("pinjam")}
-          className="px-6 py-2 rounded-xl text-white font-semibold bg-gradient-to-r from-orange-400 to-orange-500 shadow-lg hover:scale-105 transition"
-        >
-          Pinjam
-        </button>
-        <button
-          onClick={() => setActive("bayar")}
-          className="px-6 py-2 rounded-xl bg-red-500 hover:bg-red-600 text-white font-semibold shadow-lg"
-        >
-          Bayar
-        </button>
-        <button
-          onClick={() => setActive("pinjaman")}
-          className="px-6 py-2 rounded-xl bg-orange-400 hover:bg-orange-500 text-white font-semibold shadow-lg transform transition-all hover:scale-105 hover:shadow-lg"
-        >
-          Pinjaman
-        </button>
-        <button
-          onClick={() => setActive("riwayat")}
-          className="px-6 py-2 rounded-xl bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold shadow-lg"
-        >
-          Riwayat
-        </button>
-      </div>
-
-      {/* Konten */}
-      <main className="max-w-3xl mx-auto mt-6 p-4 sm:px-4 md:px-6">
-        {/* UI Pinjam */}
-        {active === "pinjam" && (
-          <div className="bg-white shadow-lg rounded-2xl p-6 border border-orange-200 animate-fadeIn">
-            <h2 className="text-xl font-bold text-orange-500 mb-2">💰 Ajukan Pinjaman</h2>
-            <p className="text-lg font-bold">Limit Pinjaman: <span className="text-2xl text-orange-500">Rp 100.000</span></p>
-            <p className="text-sm text-gray-600">Bunga: 5% per bulan</p>
-            <label className="block mt-4 mb-2 font-semibold">Pilih Tenor (bulan)</label>
-            <select id="tenorSelect" className="w-full p-2 rounded-lg border">
+      if (active === "pinjam") {
+        content.innerHTML = `
+          <div class="bg-white shadow-lg rounded-2xl p-6 border border-orange-200 animate-fadeIn">
+            <h2 class="text-xl font-bold text-orange-500 mb-2">💰 Ajukan Pinjaman</h2>
+            <p class="text-lg font-bold">Limit Pinjaman: <span class="text-2xl text-orange-500">Rp 100.000</span></p>
+            <p class="text-sm text-gray-600">Bunga: 5% per bulan</p>
+            <label class="block mt-4 mb-2 font-semibold">Pilih Tenor (bulan)</label>
+            <select id="tenorSelect" class="w-full p-2 rounded-lg border">
               <option value="3">3 Bulan</option>
               <option value="6">6 Bulan</option>
               <option value="12">12 Bulan</option>
             </select>
-            <button
-              onClick={() => {
-                const tenor = parseInt(document.getElementById("tenorSelect").value);
-                const s = simulasiPinjam(tenor);
-                alert(
-                  `Simulasi Pinjaman:\nJumlah: Rp ${s.pokok.toLocaleString()}\nTenor: ${s.tenor} bulan\nTotal: Rp ${s.total.toLocaleString()}\nCicilan: Rp ${s.cicilan.toLocaleString()}`
-                );
-              }}
-              className="mt-4 w-full py-2 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-semibold shadow-md transition-all hover:scale-105"
-            >
+            <button onclick="handleAjukan()" class="mt-4 w-full py-2 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-semibold shadow-md transition-all hover:scale-105">
               Ajukan
             </button>
-          </div>
-        )}
+          </div>`;
+      }
 
-        {/* UI Pinjaman */}
-        {active === "pinjaman" && (
-          <div className="space-y-4 animate-fadeIn">
-            {pinjaman.map((p) => (
-              <div key={p.id} className="bg-white p-4 rounded-xl shadow border border-orange-200 hover:shadow-lg transform transition-all hover:scale-[1.02]">
-                <button
-                  className="w-full text-left font-bold text-orange-600 flex justify-between items-center"
-                  onClick={() => setExpanded(expanded === p.id ? null : p.id)}
-                >
-                  💰 Pinjaman Rp {p.jumlah.toLocaleString()}
-                  <span>{expanded === p.id ? "▲" : "▼"}</span>
-                </button>
-                {expanded === p.id && (
-                  <div className="mt-2 space-y-1 animate-fadeIn">
-                    <p>📅 Sisa tenor: {p.tenor} bulan</p>
-                    <p>📅 Tanggal jatuh tempo: Tanggal {p.jatuhTempo} setiap bulan</p>
-                    <p>💳 Cicilan per bulan: Rp {p.cicilan.toLocaleString()}</p>
-                  </div>
-                )}
+      if (active === "pinjaman") {
+        content.innerHTML = pinjaman.map(p => `
+          <div class="bg-white p-4 rounded-xl shadow border border-orange-200 hover:shadow-lg transition-all hover:scale-[1.02] mb-3">
+            <button class="w-full text-left font-bold text-orange-600 flex justify-between items-center" onclick="toggleExpand(${p.id})">
+              💰 Pinjaman Rp ${p.jumlah.toLocaleString()}
+              <span>${expanded === p.id ? "▲" : "▼"}</span>
+            </button>
+            ${expanded === p.id ? `
+              <div class="mt-2 space-y-1 animate-fadeIn">
+                <p>📅 Sisa tenor: ${p.tenor} bulan</p>
+                <p>📅 Tanggal jatuh tempo: Tanggal ${p.jatuhTempo} setiap bulan</p>
+                <p>💳 Cicilan per bulan: Rp ${p.cicilan.toLocaleString()}</p>
+              </div>` : ""}
+          </div>
+        `).join("");
+      }
+
+      if (active === "bayar") {
+        const due = pinjaman.filter(p => p.jatuhTempo === today);
+        if (due.length) {
+          content.innerHTML = due.map(p => `
+            <div class="bg-white p-4 rounded-xl shadow flex justify-between items-center border border-red-200 transition-all hover:scale-[1.01] mb-3">
+              <div>
+                <p class="font-bold">💰 Pinjaman Rp ${p.jumlah.toLocaleString()}</p>
+                <p>📅 Jatuh tempo hari ini</p>
+                <p>💳 Cicilan: Rp ${p.cicilan.toLocaleString()}</p>
               </div>
-            ))}
-          </div>
-        )}
+              <button onclick="bayar(${p.id})" class="px-4 py-2 rounded-xl bg-red-500 hover:bg-red-600 text-white font-semibold transition transform hover:scale-105">
+                Bayar
+              </button>
+            </div>
+          `).join("");
+        } else {
+          content.innerHTML = `<p class="text-center text-gray-500">Tidak ada cicilan jatuh tempo hari ini.</p>`;
+        }
+      }
 
-        {/* UI Bayar */}
-        {active === "bayar" && (
-          <div className="space-y-4 animate-fadeIn">
-            {pinjaman.filter((p) => p.jatuhTempo === today).length ? (
-              pinjaman.filter((p) => p.jatuhTempo === today).map((p) => (
-                <div key={p.id} className="bg-white p-4 rounded-xl shadow flex justify-between items-center border border-red-200 transform transition-all hover:scale-[1.01]">
-                  <div>
-                    <p className="font-bold">💰 Pinjaman Rp {p.jumlah.toLocaleString()}</p>
-                    <p>📅 Jatuh tempo hari ini</p>
-                    <p>💳 Cicilan: Rp {p.cicilan.toLocaleString()}</p>
-                  </div>
-                  <button
-                    onClick={() => bayar(p.id)}
-                    className="px-4 py-2 rounded-xl bg-red-500 hover:bg-red-600 text-white font-semibold transition transform hover:scale-105"
-                  >
-                    Bayar
-                  </button>
-                </div>
-              ))
-            ) : (
-              <p className="text-center text-gray-500">Tidak ada cicilan jatuh tempo hari ini.</p>
-            )}
-          </div>
-        )}
+      if (active === "riwayat") {
+        if (riwayat.length) {
+          content.innerHTML = riwayat.map(r => `
+            <div class="bg-white p-4 rounded-xl shadow border border-orange-100 hover:shadow-orange-300 transition-all transform hover:scale-[1.01] mb-3">
+              <p class="font-bold">✅ ${r.jenis}</p>
+              <p>💰 Rp ${r.jumlah.toLocaleString()}</p>
+              <p>📅 ${r.tanggal}</p>
+            </div>
+          `).join("");
+        } else {
+          content.innerHTML = `<p class="text-center text-gray-500">Belum ada riwayat pembayaran.</p>`;
+        }
+      }
+    }
 
-        {/* UI Riwayat */}
-        {active === "riwayat" && (
-          <div className="space-y-4 animate-fadeIn">
-            {riwayat.length ? (
-              riwayat.map((r, i) => (
-                <div key={i} className="bg-white p-4 rounded-xl shadow border border-orange-100 hover:shadow-orange-300 transition-all transform hover:scale-[1.01]">
-                  <p className="font-bold">✅ {r.jenis}</p>
-                  <p>💰 Rp {r.jumlah.toLocaleString()}</p>
-                  <p>📅 {r.tanggal}</p>
-                </div>
-              ))
-            ) : (
-              <p className="text-center text-gray-500">Belum ada riwayat pembayaran.</p>
-            )}
-          </div>
-        )}
-      </main>
-    </div>
-  );
-}
+    function toggleExpand(id) {
+      expanded = expanded === id ? null : id;
+      render();
+    }
+
+    function handleAjukan() {
+      const tenor = parseInt(document.getElementById("tenorSelect").value);
+      const s = simulasiPinjam(tenor);
+      alert(`Simulasi Pinjaman:\nJumlah: Rp ${s.pokok.toLocaleString()}\nTenor: ${s.tenor} bulan\nTotal: Rp ${s.total.toLocaleString()}\nCicilan: Rp ${s.cicilan.toLocaleString()}`);
+    }
+
+    render();
+  </script>
+</body>
+</html>

@@ -14,13 +14,13 @@
 </head>
 <body class="min-h-screen bg-white text-gray-900">
   <!-- Header -->
-  <header class="flex justify-between items-center p-4 bg-orange-500 text-white shadow-md">
+  <header class="flex justify-between items-center p-4 bg-orange-500 text-white shadow-md w-full">
     <h1 class="text-xl font-bold">Shopee Pinjam</h1>
     <span class="font-medium">Hi, Lindawati</span>
   </header>
 
-  <!-- Tombol utama -->
-  <div class="flex gap-3 mt-6 px-2 overflow-x-auto scrollbar-hide">
+  <!-- Tombol utama scrollable di HP -->
+  <div class="flex overflow-x-auto gap-3 mt-6 px-2 sm:px-4 md:px-6 scrollbar-hide">
     <button onclick="setActive('pinjam')" class="flex-shrink-0 px-6 py-2 rounded-xl text-white font-semibold bg-gradient-to-r from-orange-400 to-orange-500 shadow-lg hover:scale-105 transition">Pinjam</button>
     <button onclick="setActive('bayar')" class="flex-shrink-0 px-6 py-2 rounded-xl bg-red-500 hover:bg-red-600 text-white font-semibold shadow-lg">Bayar</button>
     <button onclick="setActive('pinjaman')" class="flex-shrink-0 px-6 py-2 rounded-xl bg-orange-400 hover:bg-orange-500 text-white font-semibold shadow-lg transform transition-all hover:scale-105">Pinjaman</button>
@@ -31,36 +31,14 @@
   <main id="content" class="max-w-3xl mx-auto mt-6 p-4 sm:px-4 md:px-6"></main>
 
   <script>
-    let active = "pinjaman";
+    let active = "pinjam";
     let expanded = null;
     let limitPinjaman = 200000;
-    let riwayat = [
-      { jenis: "Pembayaran cicilan", jumlah: 150000, tanggal: "02 Sep 2025" },
-      { jenis: "Pelunasan sebagian", jumlah: 200000, tanggal: "25 Agu 2025" },
-    ];
-    let pinjaman = [
-      { id: 1, jumlah: 150000, tenor: 3, jatuhTempo: 7, cicilan: 52500 },
-    ];
+    let riwayat = [];
+    let pinjaman = [];
 
     function setActive(view) {
       active = view;
-      render();
-    }
-
-    function bayar(id) {
-      const idx = pinjaman.findIndex(p => p.id === id);
-      if (idx === -1) return;
-      const p = pinjaman[idx];
-
-      riwayat.unshift({
-        jenis: `Pembayaran cicilan pinjaman Rp ${p.jumlah.toLocaleString()}`,
-        jumlah: p.cicilan,
-        tanggal: new Date().toLocaleDateString("id-ID"),
-      });
-
-      pinjaman[idx].tenor -= 1;
-      if (pinjaman[idx].tenor <= 0) pinjaman.splice(idx, 1);
-      active = "riwayat";
       render();
     }
 
@@ -74,34 +52,30 @@
     function handleAjukan() {
       const jumlah = parseInt(document.getElementById("jumlahPinjam").value);
       const tenor = parseInt(document.getElementById("tenorSelect").value);
+      const hasilBox = document.getElementById("hasilSimulasi");
 
       if (!jumlah || jumlah <= 0) {
-        alert("Masukkan jumlah pinjaman yang valid.");
+        hasilBox.innerHTML = `<p class="text-red-500 font-semibold">⚠️ Masukkan jumlah pinjaman yang valid.</p>`;
         return;
       }
       if (jumlah > limitPinjaman) {
-        alert(`Jumlah pinjaman melebihi limit Rp ${limitPinjaman.toLocaleString()}`);
+        hasilBox.innerHTML = `<p class="text-red-500 font-semibold">⚠️ Jumlah pinjaman melebihi limit Rp ${limitPinjaman.toLocaleString()}.</p>`;
         return;
       }
 
       const s = simulasiPinjam(jumlah, tenor);
-
-      alert(`Simulasi Pinjaman:\nJumlah: Rp ${s.jumlah.toLocaleString()}\nTenor: ${s.tenor} bulan\nTotal: Rp ${s.total.toLocaleString()}\nCicilan: Rp ${s.cicilan.toLocaleString()}`);
-
-      // Tambahkan pinjaman ke daftar
-      pinjaman.push({
-        id: Date.now(),
-        jumlah: s.jumlah,
-        tenor: s.tenor,
-        jatuhTempo: new Date().getDate(),
-        cicilan: s.cicilan,
-      });
-      active = "pinjaman";
-      render();
+      hasilBox.innerHTML = `
+        <div class="bg-orange-50 border border-orange-200 rounded-xl p-4 mt-4 animate-fadeIn">
+          <h3 class="text-lg font-bold text-orange-600 mb-2">📊 Hasil Simulasi</h3>
+          <p>💰 Jumlah pinjaman: <span class="font-semibold">Rp ${s.jumlah.toLocaleString()}</span></p>
+          <p>📅 Tenor: <span class="font-semibold">${s.tenor} bulan</span></p>
+          <p>💸 Total pembayaran: <span class="font-semibold">Rp ${s.total.toLocaleString()}</span></p>
+          <p>💳 Cicilan per bulan: <span class="font-semibold">Rp ${s.cicilan.toLocaleString()}</span></p>
+        </div>
+      `;
     }
 
     function render() {
-      const today = new Date().getDate();
       const content = document.getElementById("content");
       content.innerHTML = "";
 
@@ -111,75 +85,25 @@
             <h2 class="text-xl font-bold text-orange-500 mb-2">💰 Ajukan Pinjaman</h2>
             <p class="text-lg font-bold">Limit Pinjaman: <span class="text-2xl text-orange-500">Rp ${limitPinjaman.toLocaleString()}</span></p>
             <p class="text-sm text-gray-600">Bunga: 5% per bulan</p>
+            
             <label class="block mt-4 mb-2 font-semibold">Masukkan Jumlah Pinjaman</label>
             <input id="jumlahPinjam" type="number" min="1" max="${limitPinjaman}" class="w-full p-2 rounded-lg border" placeholder="Contoh: 150000" />
+
             <label class="block mt-4 mb-2 font-semibold">Pilih Tenor (bulan)</label>
             <select id="tenorSelect" class="w-full p-2 rounded-lg border">
               <option value="3">3 Bulan</option>
               <option value="6">6 Bulan</option>
               <option value="12">12 Bulan</option>
             </select>
+
             <button onclick="handleAjukan()" class="mt-4 w-full py-2 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-semibold shadow-md transition-all hover:scale-105">
               Ajukan
             </button>
+
+            <!-- Box hasil simulasi -->
+            <div id="hasilSimulasi"></div>
           </div>`;
       }
-
-      if (active === "pinjaman") {
-        content.innerHTML = pinjaman.map(p => `
-          <div class="bg-white p-4 rounded-xl shadow border border-orange-200 hover:shadow-lg transition-all hover:scale-[1.02] mb-3">
-            <button class="w-full text-left font-bold text-orange-600 flex justify-between items-center" onclick="toggleExpand(${p.id})">
-              💰 Pinjaman Rp ${p.jumlah.toLocaleString()}
-              <span>${expanded === p.id ? "▲" : "▼"}</span>
-            </button>
-            ${expanded === p.id ? `
-              <div class="mt-2 space-y-1 animate-fadeIn">
-                <p>📅 Sisa tenor: ${p.tenor} bulan</p>
-                <p>📅 Tanggal jatuh tempo: Tanggal ${p.jatuhTempo} setiap bulan</p>
-                <p>💳 Cicilan per bulan: Rp ${p.cicilan.toLocaleString()}</p>
-              </div>` : ""}
-          </div>
-        `).join("");
-      }
-
-      if (active === "bayar") {
-        const due = pinjaman.filter(p => p.jatuhTempo === today);
-        if (due.length) {
-          content.innerHTML = due.map(p => `
-            <div class="bg-white p-4 rounded-xl shadow flex justify-between items-center border border-red-200 transition-all hover:scale-[1.01] mb-3">
-              <div>
-                <p class="font-bold">💰 Pinjaman Rp ${p.jumlah.toLocaleString()}</p>
-                <p>📅 Jatuh tempo hari ini</p>
-                <p>💳 Cicilan: Rp ${p.cicilan.toLocaleString()}</p>
-              </div>
-              <button onclick="bayar(${p.id})" class="px-4 py-2 rounded-xl bg-red-500 hover:bg-red-600 text-white font-semibold transition transform hover:scale-105">
-                Bayar
-              </button>
-            </div>
-          `).join("");
-        } else {
-          content.innerHTML = `<p class="text-center text-gray-500">Tidak ada cicilan jatuh tempo hari ini.</p>`;
-        }
-      }
-
-      if (active === "riwayat") {
-        if (riwayat.length) {
-          content.innerHTML = riwayat.map(r => `
-            <div class="bg-white p-4 rounded-xl shadow border border-orange-100 hover:shadow-orange-300 transition-all transform hover:scale-[1.01] mb-3">
-              <p class="font-bold">✅ ${r.jenis}</p>
-              <p>💰 Rp ${r.jumlah.toLocaleString()}</p>
-              <p>📅 ${r.tanggal}</p>
-            </div>
-          `).join("");
-        } else {
-          content.innerHTML = `<p class="text-center text-gray-500">Belum ada riwayat pembayaran.</p>`;
-        }
-      }
-    }
-
-    function toggleExpand(id) {
-      expanded = expanded === id ? null : id;
-      render();
     }
 
     render();

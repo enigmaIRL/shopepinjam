@@ -12,17 +12,17 @@
 </head>
 <body class="min-h-screen bg-white text-gray-900">
   <!-- Header -->
-  <header class="flex justify-between items-center p-4 bg-orange-500 text-white shadow-md">
+  <header class="flex justify-between items-center p-4 bg-orange-500 text-white shadow-md w-full">
     <h1 class="text-xl font-bold">Shopee Pinjam</h1>
     <span class="font-medium">Hi, Lindawati</span>
   </header>
 
-  <!-- Tombol utama -->
-  <div class="flex justify-center gap-3 mt-6 px-2">
-    <button onclick="setActive('pinjam')" class="px-6 py-2 rounded-xl text-white font-semibold bg-gradient-to-r from-orange-400 to-orange-500 shadow-lg hover:scale-105 transition">Pinjam</button>
-    <button onclick="setActive('bayar')" class="px-6 py-2 rounded-xl bg-red-500 hover:bg-red-600 text-white font-semibold shadow-lg">Bayar</button>
-    <button onclick="setActive('pinjaman')" class="px-6 py-2 rounded-xl bg-orange-400 hover:bg-orange-500 text-white font-semibold shadow-lg transform transition-all hover:scale-105">Pinjaman</button>
-    <button onclick="setActive('riwayat')" class="px-6 py-2 rounded-xl bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold shadow-lg">Riwayat</button>
+  <!-- Tombol utama scrollable di HP -->
+  <div class="flex overflow-x-auto gap-3 mt-6 px-2 sm:px-4 md:px-6 scrollbar-hide">
+    <button onclick="setActive('pinjam')" class="flex-shrink-0 px-6 py-2 rounded-xl text-white font-semibold bg-gradient-to-r from-orange-400 to-orange-500 shadow-lg hover:scale-105 transition">Pinjam</button>
+    <button onclick="setActive('bayar')" class="flex-shrink-0 px-6 py-2 rounded-xl bg-red-500 hover:bg-red-600 text-white font-semibold shadow-lg">Bayar</button>
+    <button onclick="setActive('pinjaman')" class="flex-shrink-0 px-6 py-2 rounded-xl bg-orange-400 hover:bg-orange-500 text-white font-semibold shadow-lg transform transition-all hover:scale-105">Pinjaman</button>
+    <button onclick="setActive('riwayat')" class="flex-shrink-0 px-6 py-2 rounded-xl bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold shadow-lg">Riwayat</button>
   </div>
 
   <!-- Konten -->
@@ -164,5 +164,10 @@
 
     render();
   </script>
+  <style>
+    /* Hilangkan scrollbar di HP */
+    .scrollbar-hide::-webkit-scrollbar { display: none; }
+    .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+  </style>
 </body>
 </html>
